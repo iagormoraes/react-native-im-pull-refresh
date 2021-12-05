@@ -11,6 +11,8 @@
 import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
+  ScrollView,
+  ScrollViewProps,
   StatusBar,
   StyleSheet,
   Text,
@@ -81,13 +83,15 @@ const App = () => {
     <GestureHandlerRootView>
       <SafeAreaView style={backgroundStyle}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-        <PullRefreshScrollView
+        <PullRefreshScrollView<ScrollViewProps>
+          view={ScrollView}
           loadingChildren={({ animatedValue }) => (
             <SampleLoader animatedValue={animatedValue} />
           )}
           onPullRefresh={() => setRefresh(true)}
           refreshing={refreshing}
           loaderHeight={200}
+          bounceOnPull={false}
           style={backgroundStyle}
         >
           <Header />
