@@ -1,44 +1,65 @@
-import React, { ReactElement } from 'react';
-import type { ScrollViewProps } from 'react-native';
-import { GestureDetector, ScrollView } from 'react-native-gesture-handler';
+import React, { FunctionComponent, useMemo } from 'react';
+import type { StyleProp } from 'react-native';
+
+import {
+  createNativeWrapper,
+  GestureDetector,
+} from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedProps,
   useAnimatedStyle,
-  withSpring,
 } from 'react-native-reanimated';
 
 import usePullRefreshScrollView from './usePullRefreshScrollView';
 
-const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
+type ViewComponentProps<T> = StyleProp<T> & object;
 
-interface Props extends ScrollViewProps {
-  children: ReactElement | ReactElement[];
+type ComponentProps<T> = ViewComponentProps<T> & {
+  view: React.ComponentType<T>;
+  refreshing: boolean;
+  power?: number;
+  bounceOnPull?: boolean;
+  onPullRefresh(): void;
   loadingChildren({
     animatedValue,
   }: {
     animatedValue: Animated.SharedValue<number>;
   }): React.ReactElement;
-  refreshing: boolean;
-  onPullRefresh(): void;
-  power?: number;
   loaderHeight?: number;
-}
+};
 
-const PullRefreshScrollViewComponent: React.FunctionComponent<Props> = ({
-  children,
+type ComponentWithChildrenProps<T> = ComponentProps<T> & {
+  children: React.ReactElement | React.ReactElement[];
+};
+
+function PullRefreshScrollView<T extends object>({
+  view,
   loadingChildren,
   refreshing,
   onPullRefresh,
   power = 0.5,
   loaderHeight = 50,
+  bounceOnPull = true,
   ...props
-}) => {
-  const { ref, gestures, scrollHandler, scrollHeight, dragging } =
+}: ComponentProps<T> | ComponentWithChildrenProps<T>) {
+  const ScrollableView = useMemo(() => {
+    // As reanimated does not provide an export type to the createAnimatedComponent function,
+    // we set to any to avoid any break type in between the versions
+    const ComponentWithGesture = createNativeWrapper<T>(view, {
+      disallowInterruption: true,
+      shouldCancelWhenOutside: false,
+    }) as FunctionComponent<any>;
+
+    return Animated.createAnimatedComponent(ComponentWithGesture);
+  }, [view]);
+
+  const { ref, gestures, dragging, scrollHandler, scrollHeight } =
     usePullRefreshScrollView({
       refreshing,
       callback: onPullRefresh,
       power,
-      height: loaderHeight,
+      bounceOnPull,
+      loaderHeight,
     });
 
   const style = useAnimatedStyle(() => {
@@ -46,9 +67,7 @@ const PullRefreshScrollViewComponent: React.FunctionComponent<Props> = ({
       position: 'relative',
       transform: [
         {
-          translateY: withSpring(scrollHeight.value, {
-            mass: 0.5,
-          }),
+          translateY: scrollHeight.value,
         },
       ],
     };
@@ -65,6 +84,7 @@ const PullRefreshScrollViewComponent: React.FunctionComponent<Props> = ({
     };
   });
 
+  // This props it is required to disable scrolling gesture to avoid mix gesture with pan
   const animatedProps = useAnimatedProps(() => {
     return {
       scrollEnabled: !dragging.value,
@@ -74,25 +94,20 @@ const PullRefreshScrollViewComponent: React.FunctionComponent<Props> = ({
   return (
     <GestureDetector gesture={gestures}>
       <Animated.View>
-        <Animated.View pointerEvents="none" style={contentStyle}>
+        <Animated.View style={contentStyle}>
           {loadingChildren({ animatedValue: scrollHeight })}
         </Animated.View>
         <Animated.View style={style}>
-          <AnimatedScrollView
+          <ScrollableView
             {...props}
             ref={ref}
             simultaneousHandlers={scrollHandler}
-            scrollEventThrottle={16}
             animatedProps={animatedProps}
-          >
-            {children}
-          </AnimatedScrollView>
+          />
         </Animated.View>
       </Animated.View>
     </GestureDetector>
   );
-};
-
-const PullRefreshScrollView = React.memo(PullRefreshScrollViewComponent);
+}
 
 export default PullRefreshScrollView;

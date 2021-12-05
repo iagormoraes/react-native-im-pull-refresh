@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import {
   runOnJS,
   useAnimatedRef,
-  useAnimatedScrollHandler,
   useSharedValue,
+  useAnimatedScrollHandler,
   withTiming,
 } from 'react-native-reanimated';
 import { Gesture } from 'react-native-gesture-handler';
@@ -12,14 +12,16 @@ interface Props {
   refreshing: boolean;
   callback(): void;
   power: number;
-  height: number;
+  bounceOnPull: boolean;
+  loaderHeight: number;
 }
 
 function usePullRefreshScrollView({
   refreshing,
   callback,
   power,
-  height,
+  bounceOnPull,
+  loaderHeight,
 }: Props) {
   const ref = useAnimatedRef<any>();
   const scrollY = useSharedValue(0);
@@ -28,6 +30,7 @@ function usePullRefreshScrollView({
   const dragging = useSharedValue(false);
 
   const panGesture = Gesture.Pan()
+    .enabled(!refreshing)
     .simultaneousWithExternalGesture(ref)
     .onUpdate((e) => {
       const scroll = scrollY.value;
@@ -54,13 +57,23 @@ function usePullRefreshScrollView({
       posY = e.translationY - startY.value;
 
       if (dragging.value) {
-        scrollHeight.value = posY * power;
+        let newPosY = posY * power;
+
+        // when bounceOnPull is disabled we limit the loaderHeight based on the prop
+        if (!bounceOnPull && newPosY >= loaderHeight) {
+          scrollHeight.value = loaderHeight;
+
+          return;
+        }
+
+        // avoid going negative values since we want to go positive only
+        scrollHeight.value = newPosY < 0 ? 0 : newPosY;
       } else {
         scrollHeight.value = withTiming(0);
       }
     })
     .onEnd(() => {
-      if (scrollHeight.value >= height * 0.75) {
+      if (scrollHeight.value >= loaderHeight * 0.75) {
         runOnJS(callback)();
       } else {
         scrollHeight.value = withTiming(0);
@@ -81,13 +94,13 @@ function usePullRefreshScrollView({
   // effect for controlled loading state
   useEffect(() => {
     if (refreshing) {
-      scrollHeight.value = withTiming(height);
+      scrollHeight.value = withTiming(loaderHeight);
 
       return;
     }
 
     scrollHeight.value = withTiming(0);
-  }, [refreshing, height, scrollHeight]);
+  }, [refreshing, loaderHeight, scrollHeight]);
 
   return { ref, gestures, scrollHandler, scrollHeight, dragging };
 }
