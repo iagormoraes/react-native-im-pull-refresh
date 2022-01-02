@@ -1,6 +1,6 @@
 {
   "name": "react-native-im-pull-refresh",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A smooth pull to refresh component made with love.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
