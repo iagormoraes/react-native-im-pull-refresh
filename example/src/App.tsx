@@ -8,7 +8,7 @@
  * @format
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -64,6 +64,7 @@ const Section: React.FC<{
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const viewRef = useRef<ScrollViewProps>();
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -84,9 +85,13 @@ const App = () => {
       <SafeAreaView style={backgroundStyle}>
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <PullRefreshScrollView<ScrollViewProps>
+          viewRef={viewRef}
           view={ScrollView}
           loadingChildren={({ animatedValue }) => (
-            <SampleLoader animatedValue={animatedValue} />
+            <SampleLoader
+              animatedValue={animatedValue}
+              refreshing={refreshing}
+            />
           )}
           onPullRefresh={() => setRefresh(true)}
           refreshing={refreshing}
