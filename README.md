@@ -2,7 +2,8 @@
 
 A smooth pull to refresh component made with love.
 
-https://user-images.githubusercontent.com/13892132/144723951-c2c2267e-f08d-4dd7-92b1-6b3ee6df813c.mov
+![sample](https://user-images.githubusercontent.com/13892132/147877500-865d529e-58c2-437a-92c5-6deb1352797f.gif)
+
 
 # Motivation
 
