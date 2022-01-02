@@ -38,6 +38,7 @@ Is simple to instance this component into your view.
 ```tsx
         <PullRefreshScrollView<ScrollViewProps>
           view={ScrollView}
+          viewRef={ref}
           loadingChildren={({ animatedValue }) => (
             <SampleLoader animatedValue={animatedValue} />
           )}
@@ -91,10 +92,10 @@ Prop that will constriant the pan on pull to the height of loader content when i
 
 ## TODO
 
-- [ ] Make scroll component customizable by props
+- [X] Make scroll component customizable by props
 
 - [ ] Add option to get dynamically the height of loadingChildren content
-- [ ] Make animations customizable
+- [X] Make animations customizable
 
 ## Contributing
 
