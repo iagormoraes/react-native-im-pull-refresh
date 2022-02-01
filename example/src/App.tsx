@@ -98,6 +98,10 @@ const App = () => {
           loaderHeight={200}
           bounceOnPull={false}
           style={backgroundStyle}
+          onScroll={() => {
+            'worklet';
+            console.log('scrolling...');
+          }}
         >
           <Header />
           <View

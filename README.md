@@ -46,12 +46,18 @@ Is simple to instance this component into your view.
           onPullRefresh={handleRefresh}
           refreshing={refreshing}
           loaderHeight={200}
-          bounceOnPull={false}>
+          bounceOnPull={false}
+          onScroll={() => {
+            'worklet';
+            console.log('scrolling...');
+          }}>
           {/*... YOUR COMPONENTS HERE ...*/}
         </PullRefreshScrollView>
 ```
 
 It accepts a custom loader component, also it is can be controlled by state or not.
+
+NOTE: onScroll handler is invoked by JSI by Reanimated context (Native Side), so always use `"worklet"` on top of the function.
 
 ## Props
 
