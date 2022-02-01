@@ -72,6 +72,7 @@ function PullRefreshScrollViewComponent<T extends object>(
     scrollHandler,
     scrollHeight,
   } = usePullRefreshScrollView({
+    ...props,
     refreshing,
     callback: onPullRefresh,
     power,

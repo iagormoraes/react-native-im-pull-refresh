@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   runOnJS,
   useAnimatedRef,
@@ -8,7 +8,11 @@ import {
 } from 'react-native-reanimated';
 import { Gesture } from 'react-native-gesture-handler';
 
-interface Props {
+interface BasicScrollProps {
+  onScroll?: (args: any) => void;
+}
+
+interface Props extends BasicScrollProps {
   refreshing: boolean;
   callback(): void;
   power: number;
@@ -22,12 +26,15 @@ function usePullRefreshScrollView({
   power,
   bounceOnPull,
   loaderHeight,
+  ...viewProps
 }: Props) {
   const ref = useAnimatedRef<any>();
   const scrollY = useSharedValue(0);
   const scrollHeight = useSharedValue(0);
   const startY = useSharedValue(0);
   const dragging = useSharedValue(false);
+
+  const onScrollProxy = useMemo(() => viewProps.onScroll, [viewProps.onScroll]);
 
   const panGesture = Gesture.Pan()
     .enabled(!refreshing)
@@ -87,6 +94,8 @@ function usePullRefreshScrollView({
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
+      'worklet';
+      onScrollProxy && onScrollProxy(event);
       scrollY.value = event.contentOffset.y;
     },
   });
