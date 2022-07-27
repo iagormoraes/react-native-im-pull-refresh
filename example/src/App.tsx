@@ -98,6 +98,8 @@ const App = () => {
           loaderHeight={200}
           bounceOnPull={false}
           style={backgroundStyle}
+          wrapperStyle={{ opacity: 1 }}
+          containerStyle={{ opacity: 1 }}
           onScroll={() => {
             'worklet';
             console.log('scrolling...');

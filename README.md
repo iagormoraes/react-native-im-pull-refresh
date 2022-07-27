@@ -47,6 +47,8 @@ Is simple to instance this component into your view.
           refreshing={refreshing}
           loaderHeight={200}
           bounceOnPull={false}
+          wrapperStyle={{ opacity: 1 }}
+          containerStyle={{ opacity: 1 }}
           onScroll={() => {
             'worklet';
             console.log('scrolling...');

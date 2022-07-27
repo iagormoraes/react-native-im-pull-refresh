@@ -4,7 +4,7 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import type { StyleProp } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 
 import {
   createNativeWrapper,
@@ -34,6 +34,8 @@ type ComponentProps<T> = ViewComponentProps<T> &
       animatedValue: Animated.SharedValue<number>;
     }): React.ReactElement;
     loaderHeight?: number;
+    wrapperStyle?: StyleProp<ViewStyle>;
+    containerStyle?: StyleProp<ViewStyle>;
   };
 
 type ComponentWithChildrenProps<T> = ComponentProps<T> & {
@@ -52,6 +54,8 @@ function PullRefreshScrollViewComponent<T extends object>(
     power = 0.5,
     loaderHeight = 50,
     bounceOnPull = true,
+    wrapperStyle,
+    containerStyle,
   } = props;
 
   const ScrollableView = useMemo(() => {
@@ -126,11 +130,11 @@ function PullRefreshScrollViewComponent<T extends object>(
 
   return (
     <GestureDetector gesture={gestures}>
-      <Animated.View>
+      <Animated.View style={wrapperStyle}>
         <Animated.View style={contentStyle}>
           {loadingChildren({ animatedValue: scrollHeight })}
         </Animated.View>
-        <Animated.View style={style}>
+        <Animated.View style={[style, containerStyle]}>
           <ScrollableView
             {...props}
             ref={setRef}
